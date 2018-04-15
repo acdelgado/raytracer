@@ -36,9 +36,8 @@ public:
          return -1000;
       }
 
-      float top1 = (b + sqrt(determinant)) / (2 * a);
-      float top2 = (b - sqrt(determinant)) / (2 * a);
-
+      float top1 = -1 * (b + sqrt(determinant)) / (2 * a);
+      float top2 = -1 * (b - sqrt(determinant)) / (2 * a);
       return min(top1, top2);
    }
    glm::vec3 getColor(){return color;}
