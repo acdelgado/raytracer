@@ -11,6 +11,7 @@ public:
 
    void printstuff()
    {
+      cout << std::fixed; cout << std::setprecision(4);
       cout << "Camera: " << endl;
       cout << "- Location: {";
       cout <<location.x << " " << location.y << " " << location.z << "}" <<endl;
