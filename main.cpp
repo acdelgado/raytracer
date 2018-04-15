@@ -336,26 +336,27 @@ void pixelray(int width, int height, int i, int j, int type)
       
       cout << std::fixed; cout << std::setprecision(4);
       Ray *r = new Ray(cam->location, dvec);
-       cout << "Pixel: [" << i << ", " << j;
-       cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
-       cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << "}" << endl;
-       if(type == 0)return;
-         float best = 1000;
-         string o;
-         glm::vec3 bp;
-         for(int k = 0; k < Scene.size(); k++)
-         {
-            float tmp = Scene[k]->intersect(*r);
-            if(tmp < best && tmp > 0)
-            {
-              best = tmp;
-              o = Scene[k]->getObjType();
-              bp = Scene[k]->getColor();
-            }
-         }
-         cout << "T = " << best << endl;
-         cout << "Object Type: " << o << endl;
-         cout << "Color: " << bp.x << " " << bp.y << " " <<  bp.z << endl;
+      cout << "Pixel: [" << i << ", " << j;
+      cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
+      cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << "}" << endl;
+      if(type == 0)
+         return;
+      float best = 1000;
+      string o;
+      glm::vec3 bp;
+      for(int k = 0; k < Scene.size(); k++)
+      {
+        float tmp = Scene[k]->intersect(*r);
+        if(tmp < best && tmp > 0)
+        {
+          best = tmp;
+          o = Scene[k]->getObjType();
+          bp = Scene[k]->getColor();
+        }
+      }
+      cout << "T = " << best << endl;
+      cout << "Object Type: " << o << endl;
+      cout << "Color: " << bp.x << " " << bp.y << " " <<  bp.z << endl;
 }
 
 int main(int argc, char **argv)
