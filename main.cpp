@@ -264,7 +264,7 @@ void print_info()
    cout << lights.size() << " light(s)\n" << endl;
    for(int i = 0; i < lights.size(); i++)
    {
-      lights[i]->poop = i;
+      cout << "Light[" << i << "]:" << endl;
       lights[i]->printstuff();
       cout << endl;
    }
