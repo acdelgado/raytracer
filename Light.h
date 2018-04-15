@@ -11,8 +11,8 @@ public:
 
    void printstuff()
    {
-      cout << std::fixed; cout << std::setprecision(4);
       cout << "Light[" << poop << "]:" << endl;
+      cout << std::fixed; cout << std::setprecision(4);
       cout << "- Location: {";
       cout <<location.x << " " << location.y << " " << location.z << "}" <<endl;
       cout << "- Color: {";

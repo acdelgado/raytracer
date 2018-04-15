@@ -334,9 +334,9 @@ void pixelray(int width, int height, int i, int j, int type)
       glm::vec3 dvec = p - cam->location;
       dvec = normalize(dvec);
       
-      cout << std::fixed; cout << std::setprecision(4);
       Ray *r = new Ray(cam->location, dvec);
       cout << "Pixel: [" << i << ", " << j;
+      cout << std::fixed; cout << std::setprecision(4);
       cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
       cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << "}" << endl;
       if(type == 0)
@@ -353,6 +353,10 @@ void pixelray(int width, int height, int i, int j, int type)
           o = Scene[k]->getObjType();
           bp = Scene[k]->getColor();
         }
+      }
+      if(best == 1000){
+         cout << "No Hit" << endl;
+         return;
       }
       cout << "T = " << best << endl;
       cout << "Object Type: " << o << endl;
