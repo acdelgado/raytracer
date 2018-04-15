@@ -12,6 +12,7 @@ public:
 
    void printstuff()
    {
+      cout << std::fixed; cout << std::setprecision(4);
       cout << "- Type: Plane" << endl;
       cout << "- Normal: {";
       cout << norm.x << " " << norm.y << " " << norm.z << "}" << endl;

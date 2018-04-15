@@ -13,6 +13,7 @@ public:
 
    void printstuff()
    {
+      cout << std::fixed; cout << std::setprecision(4);
       cout << "- Type: Sphere" << endl;
       cout << "- Center: {";
       cout << xyz.x << " " << xyz.y << " " << xyz.z << "}" << endl;
