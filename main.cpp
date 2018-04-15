@@ -337,7 +337,7 @@ void pixelray(int width, int height, int i, int j, int type)
       Ray *r = new Ray(cam->location, dvec);
        cout << "Pixel: [" << i << ", " << j;
        cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
-       cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << endl;
+       cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << "}" << endl;
        if(type == 0)return;
          float best = 1000;
          string o;
