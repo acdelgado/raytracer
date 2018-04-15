@@ -1,1 +1,0 @@
-//home/acdelgad/cpe473/program1/raytracer-acdelgado/CMakeFiles/raytrace.dir
