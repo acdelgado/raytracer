@@ -42,5 +42,5 @@ public:
       return min(top1, top2);
    }
    glm::vec3 getColor(){return color;}
-
+   string getObjType(){return "Sphere";}
 };

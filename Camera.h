@@ -24,4 +24,5 @@ public:
 
    float intersect(const Ray & r){return 0;}
    glm::vec3 getColor(){return color;}
+   string getObjType(){return "Camera";}
 };

@@ -322,6 +322,41 @@ void raycast(int width, int height)
   image->writeToFile("output.png");
 }
 
+void pixelray(int width, int height, int i, int j, int type)
+{
+      float U = (i + 0.5) / width - 0.5;
+      float V = (j + 0.5) / height - 0.5;
+      glm::vec3 new_look = cam->look_at - cam->location;
+      glm::vec3 w = glm::normalize(new_look) * -1.0f;
+
+      glm::vec3 p = cam->location + U * cam->right + V * cam->up + -1.0f * w;
+
+      glm::vec3 dvec = p - cam->location;
+      dvec = normalize(dvec);
+      
+      Ray *r = new Ray(cam->location, dvec);
+       cout << "Pixel: [" << i << ", " << j;
+       cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
+       cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << endl;
+       if(type == 0)return;
+         float best = 1000;
+         string o;
+         glm::vec3 bp;
+         for(int k = 0; k < Scene.size(); k++)
+         {
+            float tmp = Scene[k]->intersect(*r);
+            if(tmp < best && tmp > 0)
+            {
+              best = tmp;
+              o = Scene[k]->getObjType();
+              bp = Scene[k]->getColor();
+            }
+         }
+         cout << "T = " << best << endl;
+         cout << "Object Type: " << o << endl;
+         cout << "Color: " << bp.x << " " << bp.y << " " <<  bp.z << endl;
+}
+
 int main(int argc, char **argv)
 {
   if(argc < 2)
@@ -337,6 +372,9 @@ int main(int argc, char **argv)
      print_info();
   else if(typeOfRun == "raycast")
      raycast(atoi(argv[3]), atoi(argv[4]));
-  
+  else if(typeOfRun == "pixelray")
+     pixelray(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), 0);
+  else if(typeOfRun == "firsthit")
+     pixelray(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), 1);
   return 0; 
 }

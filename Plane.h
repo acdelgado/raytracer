@@ -32,5 +32,5 @@ public:
       return ((1 * dist) * (glm::dot(norm, norm)) - glm::dot(r.start, norm)) / denom;
    }
    glm::vec3 getColor(){return color;}
-
+   string getObjType(){return "Plane";}
 };
