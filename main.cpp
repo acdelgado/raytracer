@@ -334,6 +334,7 @@ void pixelray(int width, int height, int i, int j, int type)
       glm::vec3 dvec = p - cam->location;
       dvec = normalize(dvec);
       
+      cout << std::fixed; cout << std::setprecision(4);
       Ray *r = new Ray(cam->location, dvec);
        cout << "Pixel: [" << i << ", " << j;
        cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
