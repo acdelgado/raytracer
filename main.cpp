@@ -281,25 +281,30 @@ void print_info()
 
 }
 
+glm::vec3 getDvec(int i, int j, int width, int height)
+{
+   float U = (i + 0.5) / width - 0.5;
+   float V = (j + 0.5) / height - 0.5;
+   glm::vec3 new_look = cam->look_at - cam->location;
+   glm::vec3 w = glm::normalize(new_look) * -1.0f;
+
+   glm::vec3 p = cam->location + U * cam->right + V * cam->up + -1.0f * w;
+
+   glm::vec3 dvec = p - cam->location;
+   dvec = normalize(dvec);
+
+   return normalize(dvec);   
+}
+
 void raycast(int width, int height)
 {
   Image* image = new Image(width, height);
 
-  
   for(int i = 0; i < width; i++)
   {
     for(int j = 0; j < height; j++)
     {
-      float U = (i + 0.5) / width - 0.5;
-      float V = (j + 0.5) / height - 0.5;
-      glm::vec3 new_look = cam->look_at - cam->location;
-      glm::vec3 w = glm::normalize(new_look) * -1.0f;
-
-      glm::vec3 p = cam->location + U * cam->right + V * cam->up + -1.0f * w;
-
-      glm::vec3 dvec = p - cam->location;
-      dvec = normalize(dvec);
-      
+      glm::vec3 dvec = getDvec(i, j, width, height);
       Ray *r = new Ray(cam->location, dvec);
       float best = 1000;
       glm::vec3 bp;
@@ -324,43 +329,34 @@ void raycast(int width, int height)
 
 void pixelray(int width, int height, int i, int j, int type)
 {
-      float U = (i + 0.5) / width - 0.5;
-      float V = (j + 0.5) / height - 0.5;
-      glm::vec3 new_look = cam->look_at - cam->location;
-      glm::vec3 w = glm::normalize(new_look) * -1.0f;
-
-      glm::vec3 p = cam->location + U * cam->right + V * cam->up + -1.0f * w;
-
-      glm::vec3 dvec = p - cam->location;
-      dvec = normalize(dvec);
-      
-      Ray *r = new Ray(cam->location, dvec);
-      cout << "Pixel: [" << i << ", " << j;
-      cout << std::fixed; cout << std::setprecision(4);
-      cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
-      cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << "}" << endl;
-      if(type == 0)
-         return;
-      float best = 1000;
-      string o;
-      glm::vec3 bp;
-      for(int k = 0; k < Scene.size(); k++)
-      {
-        float tmp = Scene[k]->intersect(*r);
-        if(tmp < best && tmp > 0)
-        {
-          best = tmp;
-          o = Scene[k]->getObjType();
-          bp = Scene[k]->getColor();
-        }
-      }
-      if(best == 1000){
-         cout << "No Hit" << endl;
-         return;
-      }
-      cout << "T = " << best << endl;
-      cout << "Object Type: " << o << endl;
-      cout << "Color: " << bp.x << " " << bp.y << " " <<  bp.z << endl;
+   glm::vec3 dvec = getDvec(i, j, width, height);
+   Ray *r = new Ray(cam->location, dvec);
+   cout << "Pixel: [" << i << ", " << j;
+   cout << std::fixed; cout << std::setprecision(4);
+   cout << "] Ray: {" << r->start.x << " " << r->start.y << " " << r->start.z;
+   cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << "}" << endl;
+   if(type == 0)
+      return;
+   float best = 1000;
+   string o;
+   glm::vec3 bp;
+   for(int k = 0; k < Scene.size(); k++)
+   {
+     float tmp = Scene[k]->intersect(*r);
+     if(tmp < best && tmp > 0)
+     {
+       best = tmp;
+       o = Scene[k]->getObjType();
+       bp = Scene[k]->getColor();
+     }
+   }
+   if(best == 1000){
+      cout << "No Hit" << endl;
+      return;
+   }
+   cout << "T = " << best << endl;
+   cout << "Object Type: " << o << endl;
+   cout << "Color: " << bp.x << " " << bp.y << " " <<  bp.z << endl;
 }
 
 int main(int argc, char **argv)
