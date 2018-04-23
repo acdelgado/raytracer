@@ -372,7 +372,7 @@ int main(int argc, char **argv)
   parse_scene(argv[2]);
   if(typeOfRun == "sceneinfo")
      print_info();
-  else if(typeOfRun == "raycast")
+  else if(typeOfRun == "raycast" || typeOfRun == "render")
      raycast(atoi(argv[3]), atoi(argv[4]));
   else if(typeOfRun == "pixelray")
      pixelray(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), 0);
