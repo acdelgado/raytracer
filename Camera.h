@@ -26,4 +26,10 @@ public:
    float intersect(const Ray & r){return 0;}
    glm::vec3 getColor(){return color;}
    string getObjType(){return "Camera";}
+
+   glm::vec3 blinnPhong(Ray & r, float distance, glm::vec3 & color, glm::vec3 & light,glm::vec3 & lcolor)
+   {
+      return glm::vec3(0,0,0);
+   }
+
 };

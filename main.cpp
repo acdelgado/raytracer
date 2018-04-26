@@ -296,7 +296,7 @@ glm::vec3 getDvec(int i, int j, int width, int height)
    return normalize(dvec);   
 }
 
-void raycast(int width, int height)
+void raycast(int width, int height, int lightType)
 {
   Image* image = new Image(width, height);
 
@@ -315,6 +315,9 @@ void raycast(int width, int height)
          {
            best = tmp;
            bp = Scene[k]->getColor();
+         
+           if(lightType == 1)
+             bp = Scene[k]->blinnPhong(*r, best, bp, lights[0]->location, lights[0]->color);
          }
       }
       float rr = bp.x*255.0; float gg = bp.y*255.0; float bb = bp.z*255.0;
@@ -372,8 +375,10 @@ int main(int argc, char **argv)
   parse_scene(argv[2]);
   if(typeOfRun == "sceneinfo")
      print_info();
-  else if(typeOfRun == "raycast" || typeOfRun == "render")
-     raycast(atoi(argv[3]), atoi(argv[4]));
+  else if(typeOfRun == "raycast")
+     raycast(atoi(argv[3]), atoi(argv[4]), 0);
+  else if(typeOfRun == "render")
+     raycast(atoi(argv[3]), atoi(argv[4]), 1);
   else if(typeOfRun == "pixelray")
      pixelray(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), 0);
   else if(typeOfRun == "firsthit")

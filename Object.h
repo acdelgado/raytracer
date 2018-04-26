@@ -19,6 +19,7 @@ public:
   virtual float intersect(const Ray & r) = 0;
   virtual glm::vec3 getColor() = 0;
   virtual string getObjType() = 0;
+  virtual glm::vec3 blinnPhong(Ray & r, float distance, glm::vec3 & color, glm::vec3 & light, glm::vec3 & lcolor) = 0;
 };
 
 #endif
