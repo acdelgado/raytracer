@@ -12,7 +12,6 @@
 #include "Camera.h"
 #include "Parse.h"
 #include "Sphere.h"
-#include "Light.h"
 #include "Plane.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -296,6 +295,25 @@ glm::vec3 getDvec(int i, int j, int width, int height)
    return normalize(dvec);   
 }
 
+bool inShadow(Light & l, glm::vec3 point)
+{
+  float epsilon = 0.001f;
+  glm::vec3 ld = glm::normalize(l.location - point);
+  
+  Ray * lRay = new Ray(point, ld);
+
+  for(int i = 0; i < Scene.size(); i++)
+  {
+    float s = Scene[i]->intersect(*lRay);
+    if(s > 0)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void raycast(int width, int height, int lightType)
 {
   Image* image = new Image(width, height);
@@ -315,9 +333,9 @@ void raycast(int width, int height, int lightType)
          {
            best = tmp;
            bp = Scene[k]->getColor();
-         
+           glm::vec3 pt = r->start + best * r->direction;
            if(lightType == 1)
-             bp = Scene[k]->blinnPhong(*r, best, bp, lights[0]->location, lights[0]->color);
+             bp = Scene[k]->blinnPhong(*r, best, *(lights[0]), inShadow(*(lights[0]), pt));
          }
       }
       float rr = bp.x*255.0; float gg = bp.y*255.0; float bb = bp.z*255.0;
