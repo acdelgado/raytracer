@@ -41,7 +41,9 @@ public:
       glm::vec3 light_d = glm::normalize(l.location - point);
       
       float diff = diffuse * (glm::dot(norm, light_d));
-
+      if(diff < 0) diff = 0;
+      if(diff > 1) diff = 1;
+      
       //AMBIENT LIGHTING
       float amb = ambient;
       glm::vec3 ln = glm::vec3(l.color.x, l.color.y, l.color.z);
@@ -53,7 +55,7 @@ public:
       
       //DIFFUSE LIGHTING
       if(!inShadow)
-        newColor = newColor + color * l.color * diff;
+        newColor = glm::clamp(newColor + color * l.color * diff, 0.0f, 1.0f);
       return newColor;
    }
 

@@ -154,7 +154,8 @@ Sphere* parse_sphere(ifstream & inFile)
    Sphere *sphere = new Sphere();
    
    sphere->xyz = p->parse_vec(inFile);
-   inFile >> x;
+   string radString;
+   getline(inFile, x, ',');
    inFile >> x;
    sphere->radius = atof(x.c_str());
    sphere->color = p->parse_vec(inFile);
@@ -174,9 +175,22 @@ Sphere* parse_sphere(ifstream & inFile)
          sphere->diffuse = atof(x.c_str());
       }
 
+      if(x == "specular")
+      {
+         inFile >> x;
+         sphere->specular = atof(x.c_str());
+      }
+
+      if(x == "roughness")
+      {
+         inFile >> x;
+         sphere->roughness = atof(x.c_str());
+      }
+
       inFile.ignore(1,'{');
       inFile >> x;
    }
+   
    return sphere;
 }
 
@@ -305,7 +319,7 @@ bool inShadow(Light & l, glm::vec3 point)
   for(int i = 0; i < Scene.size(); i++)
   {
     float s = Scene[i]->intersect(*lRay);
-    if(s > 0)
+    if(s > epsilon && s < glm::distance(l.location, point))
     {
       return true;
     }
@@ -317,7 +331,6 @@ bool inShadow(Light & l, glm::vec3 point)
 void raycast(int width, int height, int lightType)
 {
   Image* image = new Image(width, height);
-
   for(int i = 0; i < width; i++)
   {
     for(int j = 0; j < height; j++)

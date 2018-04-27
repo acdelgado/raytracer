@@ -8,7 +8,7 @@ public:
    glm::vec3 xyz;
    double radius;
    glm::vec3 color;
-   double ambient, diffuse;
+   double ambient, diffuse,specular, roughness;
    glm::vec3 translate;
 
    void printstuff()
@@ -37,10 +37,11 @@ public:
          return -1000;
       }
 
-      float top1 = -1 * (b + sqrt(determinant)) / (2 * a);
-      float top2 = -1 * (b - sqrt(determinant)) / (2 * a);
+      float top1 = ((-1 * b) + sqrt(determinant)) / (2 * a);
+      float top2 = ((-1 * b) - sqrt(determinant)) / (2 * a);
       return min(top1, top2);
    }
+ 
    glm::vec3 getColor(){return color;}
    string getObjType(){return "Sphere";}
 
@@ -54,13 +55,9 @@ public:
       glm::vec3 h = glm::normalize(v + light_d);
 
       float diff = diffuse * (glm::dot(normal, light_d));
-      float spec = 0 * std::pow(glm::dot(h, normal), 20);
-      if(diff < 0) diff = 0;
-      if(diff > 1) diff = 1;
-
-      if(spec < 0) spec = 0;
-      if(spec > 1) spec = 1;
-
+      float spec = specular * std::pow(glm::dot(h, normal), 1/pow(roughness,2));
+      diff = glm::clamp(diff, 0.0f, 1.0f);
+      spec = glm::clamp(spec, 0.0f, 1.0f); 
       //AMBIENT LIGHTING
       float amb = ambient;
       glm::vec3 ln = glm::vec3(l.color.x, l.color.y, l.color.z);
@@ -72,7 +69,12 @@ public:
       
       //DIFFUSE LIGHTING
       if(!inShadow)
-        newColor = newColor + color * l.color * diff;
+      {
+        if(spec < 0)
+        cout << spec << endl;
+        newColor = newColor + color * l.color * (diff+spec);
+        newColor = glm::clamp(newColor, 0.0f, 1.0f);
+      }
       return newColor;
    }
 };
