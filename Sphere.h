@@ -47,6 +47,8 @@ public:
 
    glm::vec3 blinnPhong(Ray & r, float distance, Light & l, bool inShadow)
    {
+      glm::vec3 newColor = glm::vec3(0,0,0);
+
       glm::vec3 point = r.start + (distance * r.direction);
       glm::vec3 v = glm::normalize(r.start - point);
       glm::vec3 light_d = glm::normalize(l.location - point);
@@ -54,18 +56,16 @@ public:
       normal = glm::normalize(normal);
       glm::vec3 h = glm::normalize(v + light_d);
 
-      float diff = diffuse * (glm::dot(normal, light_d));
-      float spec = specular * std::pow(glm::dot(h, normal), 1/pow(roughness,2));
-      diff = glm::clamp(diff, 0.0f, 1.0f);
-      spec = glm::clamp(spec, 0.0f, 1.0f); 
-      //AMBIENT LIGHTING
       float amb = ambient;
       glm::vec3 ln = glm::vec3(l.color.x, l.color.y, l.color.z);
-      if(ln.x > 1) ln.x = 1;
-      if(ln.y > 1) ln.y = 1;
-      if(ln.z > 1) ln.z = 1;
+      ln = glm::clamp(ln, 0.0f, 1.0f);
 
-      glm::vec3 newColor = amb * color * ln;
+      newColor = amb * color * ln;
+
+      float diff = diffuse * (glm::dot(normal, light_d));
+      float spec = specular * std::pow(glm::dot(h, normal), 2/pow(roughness,2));
+      diff = glm::clamp(diff, 0.0f, 1.0f);
+      spec = glm::clamp(spec, 0.0f, 1.0f); 
       
       //DIFFUSE LIGHTING
       if(!inShadow)

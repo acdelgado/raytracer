@@ -13,7 +13,7 @@ using namespace std;
 class Object
 {
 public:
-  float poop; 
+  float poop, ambient; 
   glm::vec3 color;
   virtual ~Object(){}
   virtual void printstuff() = 0;

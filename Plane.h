@@ -36,22 +36,22 @@ public:
 
    glm::vec3 blinnPhong(Ray & r, float distance, Light & l, bool inShadow)
    {
+      glm::vec3 newColor = glm::vec3(0,0,0);
       glm::vec3 point = r.start + (distance * r.direction);
       glm::vec3 v = glm::normalize(r.start - point);
       glm::vec3 light_d = glm::normalize(l.location - point);
-      
+ 
+      float amb = ambient;
+      glm::vec3 ln = glm::vec3(l.color.x, l.color.y, l.color.z);
+      ln = glm::clamp(ln, 0.0f, 1.0f);
+
+      newColor = amb * color * ln;
+
+     
       float diff = diffuse * (glm::dot(norm, light_d));
       if(diff < 0) diff = 0;
       if(diff > 1) diff = 1;
       
-      //AMBIENT LIGHTING
-      float amb = ambient;
-      glm::vec3 ln = glm::vec3(l.color.x, l.color.y, l.color.z);
-      if(ln.x > 1) ln.x = 1;
-      if(ln.y > 1) ln.y = 1;
-      if(ln.z > 1) ln.z = 1;
-
-      glm::vec3 newColor = amb * color * ln;
       
       //DIFFUSE LIGHTING
       if(!inShadow)

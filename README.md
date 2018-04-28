@@ -1,6 +1,7 @@
-Program 1 (Parsing and Raycast)
+Program 2 (Lighting and Shadows)
 
-All parsing and raycasting seems to work to a passable degree.
+Everything builds fine and most files are identical.
 
 Problems:
-  - simple.pov seems to not render a small part of the plane for an unknown reason.
+  - The plane issue persists on some of the images.
+  - Some differences in specular lighting between my images and the test images

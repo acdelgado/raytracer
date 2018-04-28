@@ -344,11 +344,16 @@ void raycast(int width, int height, int lightType)
          float tmp = Scene[k]->intersect(*r);
          if(tmp < best && tmp > 0)
          {
+          float amb = Scene[k]->ambient;
+          bp = glm::vec3(0,0,0);
+          for(int m = 0; m < lights.size(); m++)
+          {
            best = tmp;
-           bp = Scene[k]->getColor();
            glm::vec3 pt = r->start + best * r->direction;
            if(lightType == 1)
-             bp = Scene[k]->blinnPhong(*r, best, *(lights[0]), inShadow(*(lights[0]), pt));
+             bp = bp + Scene[k]->blinnPhong(*r, best, *(lights[m]), inShadow(*(lights[m]), pt));
+          }
+          bp = glm::clamp(bp, 0.0f, 1.0f);
          }
       }
       float rr = bp.x*255.0; float gg = bp.y*255.0; float bb = bp.z*255.0;
@@ -376,13 +381,22 @@ void pixelray(int width, int height, int i, int j, int type)
    glm::vec3 bp;
    for(int k = 0; k < Scene.size(); k++)
    {
-     float tmp = Scene[k]->intersect(*r);
-     if(tmp < best && tmp > 0)
-     {
-       best = tmp;
+      float tmp = Scene[k]->intersect(*r);
+      if(tmp < best && tmp > 0)
+      {
        o = Scene[k]->getObjType();
-       bp = Scene[k]->getColor();
-     }
+       float amb = Scene[k]->ambient;
+       bp = glm::vec3(0,0,0);
+       for(int m = 0; m < lights.size(); m++)
+       {
+         best = tmp;
+         glm::vec3 pt = r->start + best * r->direction;
+         if(type == 0) bp = Scene[k]->getColor();
+         if(type == 2)
+           bp = bp + Scene[k]->blinnPhong(*r, best, *(lights[m]), inShadow(*(lights[m]), pt));
+       }
+       bp = glm::clamp(bp, 0.0f, 1.0f);
+      }
    }
    if(best == 1000){
       cout << "No Hit" << endl;
@@ -390,7 +404,14 @@ void pixelray(int width, int height, int i, int j, int type)
    }
    cout << "T = " << best << endl;
    cout << "Object Type: " << o << endl;
-   cout << "Color: " << bp.x << " " << bp.y << " " <<  bp.z << endl;
+   if(type == 2)
+   {
+      cout << "BRDF: Blinn-Phong" << endl;
+   }
+   int rr = bp.x * 255;
+   int gg = bp.y * 255;
+   int bb = bp.z * 255;
+   cout << "Color: (" << rr << ", " << gg << ", " <<  bb << ")" << endl;
 }
 
 int main(int argc, char **argv)
@@ -412,6 +433,8 @@ int main(int argc, char **argv)
      raycast(atoi(argv[3]), atoi(argv[4]), 1);
   else if(typeOfRun == "pixelray")
      pixelray(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), 0);
+  else if(typeOfRun == "pixelcolor")
+     pixelray(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), 2);
   else if(typeOfRun == "firsthit")
      pixelray(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), 1);
   return 0; 
