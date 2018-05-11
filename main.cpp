@@ -9,10 +9,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "Object.h"
-#include "Camera.h"
 #include "Parse.h"
-#include "Sphere.h"
-#include "Plane.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -23,7 +20,6 @@ using namespace std;
 vector<Object *> Scene;
 Camera* cam;
 vector<Light*> lights;
-
 //Image class from CSC471. Used this for image writing.
 class Image
 {
@@ -115,132 +111,19 @@ private:
 
 
 
-Camera* parse_cam(ifstream & inFile)
-{
-   string x;
-   Parse *p = new Parse();
-   Camera *cam = new Camera();
-   while(x != "}")
-   {
-      if(x == "location")
-      {
-         cam->location = p->parse_vec(inFile);
-      }
-      
-      if(x == "up")
-      {
-         cam->up = p->parse_vec(inFile);
-      }
 
-      if(x == "right")
-      {
-         cam->right = p->parse_vec(inFile);
-      }
 
-      if(x == "look_at")
-      {
-         cam->look_at = p->parse_vec(inFile);
-      }
 
-      inFile >> x;
-   }
-   return cam;
-}
 
-Sphere* parse_sphere(ifstream & inFile)
-{
-   string x;
-   Parse *p = new Parse();
-   Sphere *sphere = new Sphere();
-   
-   sphere->xyz = p->parse_vec(inFile);
-   string radString;
-   getline(inFile, x, ',');
-   inFile >> x;
-   sphere->radius = atof(x.c_str());
-   sphere->color = p->parse_vec(inFile);
-   inFile >> x;
-   inFile >> x;
-   while(x != "}")
-   {
-      if(x == "ambient")
-      {
-         inFile >> x;
-         sphere->ambient = atof(x.c_str());
-      }
 
-      if(x == "diffuse")
-      {
-         inFile >> x;
-         sphere->diffuse = atof(x.c_str());
-      }
 
-      if(x == "specular")
-      {
-         inFile >> x;
-         sphere->specular = atof(x.c_str());
-      }
 
-      if(x == "roughness")
-      {
-         inFile >> x;
-         sphere->roughness = atof(x.c_str());
-      }
-
-      inFile.ignore(1,'{');
-      inFile >> x;
-   }
-   
-   return sphere;
-}
-
-Plane* parse_plane(ifstream & inFile)
-{
-   string x;
-   Parse *p = new Parse();
-   Plane *plane = new Plane();
-   
-   plane->norm = p->parse_vec(inFile);
-   inFile >> x;
-   inFile >> x;
-   plane->dist = atof(x.c_str());
-   plane->color = p->parse_vec(inFile);
-   inFile >> x;
-   inFile >> x;
-   while(x != "}")
-   {
-      if(x == "ambient")
-      {
-         inFile >> x;
-         plane->ambient = atof(x.c_str());
-      }
-
-      if(x == "diffuse")
-      {
-         inFile >> x;
-         plane->diffuse = atof(x.c_str());
-      }
-
-      inFile.ignore(1,'{');
-      inFile >> x;
-   }
-   return plane;
-}
-
-Light* parse_light(ifstream & inFile)
-{
-   string x; Parse *p = new Parse();
-   Light *l = new Light();
-
-   l->location = p->parse_vec(inFile);
-   l->color = p->parse_vec(inFile);
-   return l;
-}
 
 void parse_scene(char* filename)
 {
    ifstream inFile;
    inFile.open(filename);
+   Parse *p;
 
    if(!inFile)
    {
@@ -257,16 +140,14 @@ void parse_scene(char* filename)
          continue;
       }
       else if(x == "camera")
-         cam = parse_cam(inFile);
+         cam = p->parse_cam(inFile);
       else if(x == "light_source")
-         lights.push_back(parse_light(inFile));
+         lights.push_back(p->parse_light(inFile));
       else if(x == "sphere")
-         Scene.push_back(parse_sphere(inFile));
+         Scene.push_back(p->parse_sphere(inFile));
       else if(x == "plane")
-         Scene.push_back(parse_plane(inFile));
+         Scene.push_back(p->parse_plane(inFile));
    }
-
-
 }
 
 void print_info()
