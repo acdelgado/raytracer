@@ -218,7 +218,7 @@ void raycast(int width, int height, int lightType)
     {
       glm::vec3 dvec = getDvec(i, j, width, height);
       Ray *r = new Ray(cam->location, dvec);
-      float best = 1000;
+      float best = std::numeric_limits<float>::max();
       glm::vec3 bp;
       for(int k = 0; k < Scene.size(); k++)
       {
@@ -257,7 +257,7 @@ void pixelray(int width, int height, int i, int j, int type)
    cout << "} -> {" << dvec.x << " " << dvec.y << " " << dvec.z << "}" << endl;
    if(type == 0)
       return;
-   float best = 1000;
+   float best = std::numeric_limits<float>::max();
    string o;
    glm::vec3 bp;
    for(int k = 0; k < Scene.size(); k++)
@@ -279,7 +279,7 @@ void pixelray(int width, int height, int i, int j, int type)
        bp = glm::clamp(bp, 0.0f, 1.0f);
       }
    }
-   if(best == 1000){
+   if(best == std::numeric_limits<float>::max()){
       cout << "No Hit" << endl;
       return;
    }
