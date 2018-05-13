@@ -4,7 +4,6 @@
 class Sphere : public Object
 {
 public:
-   float poop;
    glm::vec3 xyz;
    double radius;
    glm::vec3 color;

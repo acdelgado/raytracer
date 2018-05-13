@@ -4,7 +4,6 @@
 class Plane : public Object
 {
 public:
-   float poop;
    glm::vec3 norm;
    double dist;
    glm::vec3 color;

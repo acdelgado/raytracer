@@ -6,7 +6,7 @@
 #include "Camera.h"
 #include "Sphere.h"
 #include "Plane.h"
-
+#include "Triangle.h"
 
 using namespace std;
 
@@ -143,6 +143,35 @@ Plane* parse_plane(ifstream & inFile)
       inFile >> x;
    }
    return plane;
+}
+
+Triangle* parse_tri(ifstream & inFile)
+{
+   string x;
+   Triangle *tri = new Triangle();
+   
+   tri->a = parse_vec(inFile);
+   tri->b = parse_vec(inFile);
+   tri->c = parse_vec(inFile); 
+   tri->color = parse_vec(inFile);
+   while(x != "}")
+   {
+      if(x == "ambient")
+      {
+         inFile >> x;
+         tri->ambient = atof(x.c_str());
+      }
+
+      if(x == "diffuse")
+      {
+         inFile >> x;
+         tri->diffuse = atof(x.c_str());
+      }
+
+      inFile.ignore(1,'{');
+      inFile >> x;
+   }
+   return tri;
 }
 
 Light* parse_light(ifstream & inFile)

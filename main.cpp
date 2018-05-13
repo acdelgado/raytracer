@@ -147,6 +147,8 @@ void parse_scene(char* filename)
          Scene.push_back(p->parse_sphere(inFile));
       else if(x == "plane")
          Scene.push_back(p->parse_plane(inFile));
+      else if(x == "triangle")
+         Scene.push_back(p->parse_tri(inFile));
    }
 }
 
