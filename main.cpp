@@ -240,17 +240,23 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce, float n1)
           {
              glm::vec3 ambColor = Scene[k]->ambColor(*(lights[m]));
              bp = bp * (1.0f - finrefl);
-             bp = bp + finrefl * raytrace(*reflectRay, lightType, bounce + 1, n1);
+             bp = bp + finrefl * (raytrace(*reflectRay, lightType, bounce + 1, n1) * Scene[k]->getColor());
           }
-          /*float finrefr = Scene[k]->getRefraction();
+          float finrefr = Scene[k]->getRefraction();
           if(finrefr > 0)
           {
              float n2 = Scene[k]->getIOR();
-             glm::vec3 dDotN = glm::dot(r.direction, normal);
-             float n = n1/n2;
+             float n;
+             float dDotN = glm::dot(r.direction, normal);
+             if(dDotN < 0)
+                n = n1/n2;
              if(dDotN > 0)
-             glm::vec3 refractd = (n1/n2) * (r.direction + (dDotN * normal)) + (-1.0f * normal) * sqrt(1 - pow(n1/n2,2) * (1 - pow(glm::dot(r.direction,normal),2)));
-          }*/
+                n = n2/n1;
+             glm::vec3 refractD = n * (r.direction - (dDotN * normal)) + (-1.0f * normal) * sqrt(1 - pow(n,2) * (1 - pow(dDotN,2)));
+             pt = pt + 0.001f;
+             Ray *t = new Ray(pt, refractD);
+             bp = bp + raytrace(*t, lightType, bounce, n2);
+          }
        }
 
         bp = glm::clamp(bp, 0.0f, 1.0f);
