@@ -7,7 +7,7 @@ public:
    glm::vec3 xyz;
    double radius;
    glm::vec3 color;
-   double ambient, diffuse, reflection, specular, roughness;
+   double ambient, diffuse, reflection, refraction, ior, specular, roughness;
    glm::vec3 translate;
 
    void printstuff()
@@ -43,6 +43,8 @@ public:
    }
  
    float getReflection() { return reflection;}
+   float getRefraction() {return refraction;}
+   float getIOR() {return ior;}
    glm::vec3 getColor(){return color;}
    string getObjType(){return "Sphere";}
 

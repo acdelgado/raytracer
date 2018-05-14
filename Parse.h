@@ -114,6 +114,18 @@ Sphere* parse_sphere(ifstream & inFile)
          inFile >> x;
          sphere->reflection = atof(x.c_str());
       }
+      
+      if(x == "refraction")
+      {
+         inFile >> x;
+         sphere->refraction = atof(x.c_str());
+      }
+      
+      if(x == "ior")
+      {
+         inFile >> x;
+         sphere->ior = atof(x.c_str());
+      }
    }
    
    return sphere;
@@ -151,6 +163,18 @@ Plane* parse_plane(ifstream & inFile)
          plane->reflection = atof(x.c_str());
       }
 
+      if(x == "refraction")
+      {
+         inFile >> x;
+         plane->refraction = atof(x.c_str());
+      }
+      
+      if(x == "ior")
+      {
+         inFile >> x;
+         plane->ior = atof(x.c_str());
+      }
+
       inFile.ignore(1,'{');
       inFile >> x;
    }
@@ -178,6 +202,18 @@ Triangle* parse_tri(ifstream & inFile)
       {
          inFile >> x;
          tri->diffuse = atof(x.c_str());
+      }
+
+      if(x == "refraction")
+      {
+         inFile >> x;
+         tri->refraction = atof(x.c_str());
+      }
+      
+      if(x == "ior")
+      {
+         inFile >> x;
+         tri->ior = atof(x.c_str());
       }
 
       inFile.ignore(1,'{');

@@ -211,7 +211,7 @@ bool inShadow(Light & l, glm::vec3 point)
   return false;
 }
 
-glm::vec3 raytrace(Ray & r, int lightType, int bounce)
+glm::vec3 raytrace(Ray & r, int lightType, int bounce, float n1)
 {
    if(bounce == 6)
       return glm::vec3(0,0,0);
@@ -224,7 +224,6 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
       float tmp = Scene[k]->intersect(r);
       if(tmp < best && tmp > 0)
       {
-        float amb = Scene[k]->ambient;
         bp = glm::vec3(0,0,0);
         for(int m = 0; m < lights.size(); m++)
         {
@@ -240,9 +239,19 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
           if(finrefl > 0)
           {
              glm::vec3 ambColor = Scene[k]->ambColor(*(lights[m]));
-             bp = bp + finrefl * raytrace(*reflectRay, lightType, bounce + 1);
-          }         
-        }
+             bp = bp * (1.0f - finrefl);
+             bp = bp + finrefl * raytrace(*reflectRay, lightType, bounce + 1, n1);
+          }
+          /*float finrefr = Scene[k]->getRefraction();
+          if(finrefr > 0)
+          {
+             float n2 = Scene[k]->getIOR();
+             glm::vec3 dDotN = glm::dot(r.direction, normal);
+             float n = n1/n2;
+             if(dDotN > 0)
+             glm::vec3 refractd = (n1/n2) * (r.direction + (dDotN * normal)) + (-1.0f * normal) * sqrt(1 - pow(n1/n2,2) * (1 - pow(glm::dot(r.direction,normal),2)));
+          }*/
+       }
 
         bp = glm::clamp(bp, 0.0f, 1.0f);
         
@@ -262,7 +271,7 @@ void raycast(int width, int height, int lightType)
        glm::vec3 dvec = getDvec(i, j, width, height);
        Ray *r = new Ray(cam->location, dvec);
 
-       glm::vec3 pixel = raytrace(*r, lightType, 0);
+       glm::vec3 pixel = raytrace(*r, lightType, 0, 1);
        float rr = pixel.x*255; float gg = pixel.y*255; float bb = pixel.z*255;
        image->setPixel(i, j, rr, gg, bb);
     }

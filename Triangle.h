@@ -4,7 +4,7 @@
 class Triangle : public Object
 {
 public:
-  float ambient,diffuse,reflection; 
+  float ambient,diffuse,reflection,refraction,ior;; 
   glm::vec3 color,a,b,c;
   void printstuff()
   {
@@ -60,6 +60,8 @@ public:
     return t;
   }
   float getReflection() { return reflection;}
+  float getRefraction() {return refraction;}
+  float getIOR() {return ior;}
 
   glm::vec3 getColor()
   {

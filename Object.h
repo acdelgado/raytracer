@@ -13,7 +13,7 @@ using namespace std;
 class Object
 {
 public:
-  float ambient, reflection; 
+  float ambient, diffuse, reflection, refraction, ior; 
   glm::vec3 color;
   virtual ~Object(){}
   virtual void printstuff() = 0;
@@ -23,6 +23,8 @@ public:
   virtual glm::vec3 getNormal(glm::vec3 & pt) = 0;
   virtual glm::vec3 blinnPhong(Ray & r, float distance, Light & l, bool inShadow) = 0;
   virtual float getReflection() = 0;
+  virtual float getRefraction() = 0;
+  virtual float getIOR() = 0;
   virtual glm::vec3 ambColor(Light & l) = 0;
 };
 
