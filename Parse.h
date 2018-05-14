@@ -108,6 +108,12 @@ Sphere* parse_sphere(ifstream & inFile)
 
       inFile.ignore(1,'{');
       inFile >> x;
+      
+      if(x == "reflection")
+      {
+         inFile >> x;
+         sphere->reflection = atof(x.c_str());
+      }
    }
    
    return sphere;
@@ -137,6 +143,12 @@ Plane* parse_plane(ifstream & inFile)
       {
          inFile >> x;
          plane->diffuse = atof(x.c_str());
+      }
+
+      if(x == "reflection")
+      {
+         inFile >> x;
+         plane->reflection = atof(x.c_str());
       }
 
       inFile.ignore(1,'{');

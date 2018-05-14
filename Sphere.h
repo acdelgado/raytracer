@@ -7,7 +7,7 @@ public:
    glm::vec3 xyz;
    double radius;
    glm::vec3 color;
-   double ambient, diffuse,specular, roughness;
+   double ambient, diffuse, reflection, specular, roughness;
    glm::vec3 translate;
 
    void printstuff()
@@ -22,6 +22,7 @@ public:
       cout << "- Material:" << endl;
       cout << "  - Ambient: " << ambient << endl;
       cout << "  - Diffuse: " << diffuse << endl;
+      cout << "  - Reflection: " << reflection << endl;
    }
 
    float intersect(const Ray & r)
@@ -41,8 +42,22 @@ public:
       return min(top1, top2);
    }
  
+   float getReflection() { return reflection;}
    glm::vec3 getColor(){return color;}
    string getObjType(){return "Sphere";}
+
+   glm::vec3 getNormal(glm::vec3 & pt)
+   {
+      return glm::vec3((pt.x-xyz.x)/radius, (pt.y-xyz.y)/radius, (pt.z-xyz.z)/radius);
+   }
+
+   glm::vec3 ambColor(Light & l)
+   {
+      glm::vec3 ln = glm::vec3(l.color.x, l.color.y, l.color.z);
+      ln = glm::clamp(ln, 0.0f, 1.0f);
+      float amb = ambient;
+      return amb * color * ln;
+   }
 
    glm::vec3 blinnPhong(Ray & r, float distance, Light & l, bool inShadow)
    {

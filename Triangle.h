@@ -4,7 +4,7 @@
 class Triangle : public Object
 {
 public:
-  float ambient,diffuse; 
+  float ambient,diffuse,reflection; 
   glm::vec3 color,a,b,c;
   void printstuff()
   {
@@ -59,6 +59,7 @@ public:
 
     return t;
   }
+  float getReflection() { return reflection;}
 
   glm::vec3 getColor()
   {
@@ -69,6 +70,21 @@ public:
   {
     return "Triangle";
   }
+
+  glm::vec3 getNormal(glm::vec3 & pt)
+  {
+     glm::vec3 ab = a - b;
+     glm::vec3 ac = a - c;
+     return glm::cross(ab,ac);
+  }
+
+   glm::vec3 ambColor(Light & l)
+   {
+      glm::vec3 ln = glm::vec3(l.color.x, l.color.y, l.color.z);
+      ln = glm::clamp(ln, 0.0f, 1.0f);
+      float amb = ambient;
+      return amb * color * ln;
+   }
 
   glm::vec3 blinnPhong(Ray & r, float distance, Light & l, bool inShadow)
   {

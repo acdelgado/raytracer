@@ -13,14 +13,17 @@ using namespace std;
 class Object
 {
 public:
-  float ambient; 
+  float ambient, reflection; 
   glm::vec3 color;
   virtual ~Object(){}
   virtual void printstuff() = 0;
   virtual float intersect(const Ray & r) = 0;
   virtual glm::vec3 getColor() = 0;
   virtual string getObjType() = 0;
+  virtual glm::vec3 getNormal(glm::vec3 & pt) = 0;
   virtual glm::vec3 blinnPhong(Ray & r, float distance, Light & l, bool inShadow) = 0;
+  virtual float getReflection() = 0;
+  virtual glm::vec3 ambColor(Light & l) = 0;
 };
 
 #endif

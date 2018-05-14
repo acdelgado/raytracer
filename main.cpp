@@ -134,7 +134,7 @@ void parse_scene(char* filename)
    string x;
    while(inFile >> x)
    {
-      if(x == "//")
+      if(x[0] == '/' || x[1] == '/')
       {
          getline(inFile, x);
          continue;
@@ -211,6 +211,47 @@ bool inShadow(Light & l, glm::vec3 point)
   return false;
 }
 
+glm::vec3 raytrace(Ray & r, int lightType, int bounce)
+{
+   if(bounce == 6)
+      return glm::vec3(0,0,0);
+   //if(bounce > 0)
+     // cout << "Bounce " << bounce << endl;
+   float best = std::numeric_limits<float>::max();
+   glm::vec3 bp;
+   for(int k = 0; k < Scene.size(); k++)
+   {
+      float tmp = Scene[k]->intersect(r);
+      if(tmp < best && tmp > 0)
+      {
+        float amb = Scene[k]->ambient;
+        bp = glm::vec3(0,0,0);
+        for(int m = 0; m < lights.size(); m++)
+        {
+          best = tmp;
+          glm::vec3 pt = r.start + best * r.direction;
+          if(lightType == 1)
+           bp = bp + Scene[k]->blinnPhong(r, best, *(lights[m]), inShadow(*(lights[m]), pt));
+          glm::vec3 normal = glm::normalize(Scene[k]->getNormal(pt));
+          glm::vec3 reflectD = r.direction - 2 * glm::dot(r.direction, normal) * normal;
+          pt = pt + 0.001f;
+          Ray *reflectRay = new Ray(pt,reflectD);
+          float finrefl = Scene[k]->getReflection();
+          if(finrefl > 0)
+          {
+             glm::vec3 ambColor = Scene[k]->ambColor(*(lights[m]));
+             bp = bp + finrefl * raytrace(*reflectRay, lightType, bounce + 1);
+          }         
+        }
+
+        bp = glm::clamp(bp, 0.0f, 1.0f);
+        
+      }
+   }
+   
+   return bp;
+}
+
 void raycast(int width, int height, int lightType)
 {
   Image* image = new Image(width, height);
@@ -218,32 +259,13 @@ void raycast(int width, int height, int lightType)
   {
     for(int j = 0; j < height; j++)
     {
-      glm::vec3 dvec = getDvec(i, j, width, height);
-      Ray *r = new Ray(cam->location, dvec);
-      float best = std::numeric_limits<float>::max();
-      glm::vec3 bp;
-      for(int k = 0; k < Scene.size(); k++)
-      {
-         float tmp = Scene[k]->intersect(*r);
-         if(tmp < best && tmp > 0)
-         {
-          float amb = Scene[k]->ambient;
-          bp = glm::vec3(0,0,0);
-          for(int m = 0; m < lights.size(); m++)
-          {
-           best = tmp;
-           glm::vec3 pt = r->start + best * r->direction;
-           if(lightType == 1)
-             bp = bp + Scene[k]->blinnPhong(*r, best, *(lights[m]), inShadow(*(lights[m]), pt));
-          }
-          bp = glm::clamp(bp, 0.0f, 1.0f);
-         }
-      }
-      float rr = bp.x*255.0; float gg = bp.y*255.0; float bb = bp.z*255.0;
-      image->setPixel(i, j, rr, gg, bb);
+       glm::vec3 dvec = getDvec(i, j, width, height);
+       Ray *r = new Ray(cam->location, dvec);
 
+       glm::vec3 pixel = raytrace(*r, lightType, 0);
+       float rr = pixel.x*255; float gg = pixel.y*255; float bb = pixel.z*255;
+       image->setPixel(i, j, rr, gg, bb);
     }
-
   }
 
   image->writeToFile("output.png");
