@@ -79,17 +79,14 @@ public:
       newColor = amb * color * ln;
 
       float diff = diffuse * (glm::dot(normal, light_d));
-      float spec = specular * std::pow(glm::dot(h, normal), 2/pow(roughness,2));
+      float spec = specular * std::pow(glm::dot(h, normal), 1/roughness);
       diff = glm::clamp(diff, 0.0f, 1.0f);
       spec = glm::clamp(spec, 0.0f, 1.0f); 
       
       //DIFFUSE LIGHTING
       if(!inShadow)
       {
-        if(spec < 0)
-        cout << spec << endl;
         newColor = newColor + color * l.color * (diff+spec);
-        newColor = glm::clamp(newColor, 0.0f, 1.0f);
       }
       return newColor;
    }

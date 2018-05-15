@@ -240,7 +240,7 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce, float n1)
           {
              glm::vec3 ambColor = Scene[k]->ambColor(*(lights[m]));
              bp = bp * (1.0f - finrefl);
-             bp = bp + finrefl * (raytrace(*reflectRay, lightType, bounce + 1, n1) * Scene[k]->getColor());
+             bp += raytrace(*reflectRay, lightType, bounce + 1, n1) * finrefl * Scene[k]->getColor() * (1.0f - Scene[k]->getRefraction());
           }
           float finrefr = Scene[k]->getRefraction();
           if(finrefr > 0)
@@ -253,13 +253,12 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce, float n1)
              if(dDotN > 0)
                 n = n2/n1;
              glm::vec3 refractD = n * (r.direction - (dDotN * normal)) + (-1.0f * normal) * sqrt(1 - pow(n,2) * (1 - pow(dDotN,2)));
-             pt = pt + 0.001f;
              Ray *t = new Ray(pt, refractD);
-             bp = bp + raytrace(*t, lightType, bounce, n2);
+             bp = bp *(1.0f - finrefr);
+             bp = bp + raytrace(*t, lightType, bounce, n2) * Scene[k]->getColor() * finrefr;
           }
        }
 
-        bp = glm::clamp(bp, 0.0f, 1.0f);
         
       }
    }
@@ -277,7 +276,7 @@ void raycast(int width, int height, int lightType)
        glm::vec3 dvec = getDvec(i, j, width, height);
        Ray *r = new Ray(cam->location, dvec);
 
-       glm::vec3 pixel = raytrace(*r, lightType, 0, 1);
+       glm::vec3 pixel = glm::clamp(raytrace(*r, lightType, 0, 1),0.0f,1.0f);
        float rr = pixel.x*255; float gg = pixel.y*255; float bb = pixel.z*255;
        image->setPixel(i, j, rr, gg, bb);
     }

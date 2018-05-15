@@ -115,7 +115,7 @@ public:
       
      //DIFFUSE LIGHTING
      if(!inShadow)
-       newColor = glm::clamp(newColor + color * l.color * diff, 0.0f, 1.0f);
+       newColor = newColor + color * l.color * diff;
      return newColor;
   }
 
