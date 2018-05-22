@@ -7,7 +7,7 @@ public:
    glm::vec3 norm;
    double dist;
    glm::vec3 color;
-   double ambient, diffuse, reflection, refraction, ior;
+   double ambient, diffuse, filter, reflection, refraction, ior;
 
    void printstuff()
    {
@@ -36,7 +36,7 @@ public:
    float getReflection() {return reflection;}
    float getRefraction() {return refraction;}
    float getIOR() {return ior;}
-
+   float getFilter() {return filter;}
    glm::vec3 getColor(){return color;}
    string getObjType(){return "Plane";}
 

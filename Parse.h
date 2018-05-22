@@ -36,6 +36,23 @@ public:
       return v;
    }
 
+   static glm::vec4 parse_vec4(std::ifstream & streamy)
+   {
+      glm::vec4 v;
+      v.x = v.y = v.z = v.a = 0;
+      std::stringbuf buf;
+      std::stringbuf garbage;
+      streamy.get(garbage,'<');
+      streamy.ignore(1,'<');
+      streamy.get(buf,'>');
+      streamy.ignore(1,'>');
+
+      std::string line = buf.str();
+      int read = sscanf(line.c_str(), "%f, %f, %f, %f", &v.x, &v.y, &v.z, &v.a);
+
+      return v;
+   }
+
 Camera* parse_cam(ifstream & inFile)
 {
    string x;
@@ -77,7 +94,11 @@ Sphere* parse_sphere(ifstream & inFile)
    getline(inFile, x, ',');
    inFile >> x;
    sphere->radius = atof(x.c_str());
-   sphere->color = parse_vec(inFile);
+   
+   glm::vec4 rgbf = parse_vec4(inFile);
+
+   sphere->color = glm::vec3(rgbf.x, rgbf.y, rgbf.z);
+   sphere->filter = rgbf.a;
    inFile >> x;
    inFile >> x;
    while(x != "}")
@@ -140,7 +161,10 @@ Plane* parse_plane(ifstream & inFile)
    inFile >> x;
    inFile >> x;
    plane->dist = atof(x.c_str());
-   plane->color = parse_vec(inFile);
+   glm::vec4 rgbf = parse_vec4(inFile);
+
+   plane->color = glm::vec3(rgbf.x, rgbf.y, rgbf.z);
+   plane->filter = rgbf.a;
    inFile >> x;
    inFile >> x;
    while(x != "}")
@@ -189,7 +213,11 @@ Triangle* parse_tri(ifstream & inFile)
    tri->a = parse_vec(inFile);
    tri->b = parse_vec(inFile);
    tri->c = parse_vec(inFile); 
-   tri->color = parse_vec(inFile);
+   glm::vec4 rgbf = parse_vec4(inFile);
+
+   tri->color = glm::vec3(rgbf.x, rgbf.y, rgbf.z);
+   tri->filter = rgbf.a;
+ 
    while(x != "}")
    {
       if(x == "ambient")

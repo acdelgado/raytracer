@@ -7,7 +7,7 @@ public:
    glm::vec3 xyz;
    double radius;
    glm::vec3 color;
-   double ambient, diffuse, reflection, refraction, ior, specular, roughness;
+   double ambient, diffuse, reflection, refraction, filter, ior, specular, roughness;
    glm::vec3 translate;
 
    void printstuff()
@@ -39,9 +39,13 @@ public:
 
       float top1 = ((-1 * b) + sqrt(determinant)) / (2 * a);
       float top2 = ((-1 * b) - sqrt(determinant)) / (2 * a);
+      
+      if(top2 < 0)
+         return top1;
+
       return min(top1, top2);
    }
- 
+   float getFilter() {return filter;}
    float getReflection() { return reflection;}
    float getRefraction() {return refraction;}
    float getIOR() {return ior;}
