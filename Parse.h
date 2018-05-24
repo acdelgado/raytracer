@@ -89,7 +89,6 @@ Sphere* parse_sphere(ifstream & inFile)
    string x;
    Sphere *sphere = new Sphere();
    string order = "";
-   bool gotT = false; 
    sphere->xyz = parse_vec(inFile);
    string radString;
    getline(inFile, x, ',');
@@ -148,48 +147,20 @@ Sphere* parse_sphere(ifstream & inFile)
       }
 
       if(x == "rotate"){
-         gotT = true;
          sphere->rotate = parse_vec(inFile);
          order = order + "r";
       }
       if(x == "scale"){
-         gotT = true;
          sphere->scale = parse_vec(inFile);
          order = order + "s";
       }
       if(x == "translate"){
-         gotT = true;
          sphere->translate = parse_vec(inFile);
          order = order + "t";
       }
 
       inFile.ignore(1,'{');
       inFile >> x;
-   }
-   if(gotT)
-   {
-      sphere-> order = order;
-      return sphere;
-   }
-   inFile >> x;
-   if(x == "translate" || x == "rotate" || x == "scale")
-   {
-     while(x != "}")
-     {
-       if(x == "rotate"){
-         sphere->rotate = parse_vec(inFile);
-         order = order + "r";
-       }
-       if(x == "scale"){
-         sphere->scale = parse_vec(inFile);
-          order = order + "s";
-       }
-       if(x == "translate"){
-         sphere->translate = parse_vec(inFile);
-         order = order + "t";
-       }      
-       inFile >> x; 
-     }
    }
    sphere->order = order;
    return sphere;
@@ -199,7 +170,6 @@ Plane* parse_plane(ifstream & inFile)
 {
    string x;
    Plane *plane = new Plane();
-   bool gotT = false;
    string order = "";
    plane->norm = parse_vec(inFile);
    inFile >> x;
@@ -246,49 +216,20 @@ Plane* parse_plane(ifstream & inFile)
       if(x == "rotate"){
          plane->rotate = parse_vec(inFile);
          order = order + "r";
-         gotT = true;
       }
       if(x == "scale"){
          plane->scale = parse_vec(inFile);
          order = order + "s";
-         gotT = true;
       }
       if(x == "translate"){
          plane->translate = parse_vec(inFile);
          order = order + "t";
-         gotT = true;
       }
  
       inFile.ignore(1,'{');
       inFile >> x;
    }
 
-   if(gotT)
-   {
-      plane-> order = order;
-      return plane;
-   }
- 
-   inFile >> x;
-   if(x == "translate" || x == "rotate" || x == "scale")
-   {
-     while(x != "}")
-     {
-       if(x == "rotate"){
-         plane->rotate = parse_vec(inFile);
-         order = order + "r";
-       }
-       if(x == "scale"){
-         plane->scale = parse_vec(inFile);
-          order = order + "s";
-       }
-       if(x == "translate"){
-         plane->translate = parse_vec(inFile);
-         order = order + "t";
-       }      
-       inFile >> x; 
-     }
-   }
    plane-> order = order;
    return plane;
 }
@@ -298,7 +239,6 @@ Triangle* parse_tri(ifstream & inFile)
    string x;
    Triangle *tri = new Triangle();
    string order = "";
-   bool gotT = false;
    tri->a = parse_vec(inFile);
    tri->b = parse_vec(inFile);
    tri->c = parse_vec(inFile); 
@@ -334,17 +274,14 @@ Triangle* parse_tri(ifstream & inFile)
       }
 
       if(x == "rotate"){
-         gotT = true;
          tri->rotate = parse_vec(inFile);
          order = order + "r";
       }
       if(x == "scale"){
-         gotT = true;
          tri->scale = parse_vec(inFile);
          order = order + "s";
       }
       if(x == "translate"){
-         gotT = true;
          tri->translate = parse_vec(inFile);
          order = order + "t";
       }
@@ -352,33 +289,6 @@ Triangle* parse_tri(ifstream & inFile)
       inFile >> x;
    }
 
-   if(gotT)
-   {
-      tri-> order = order;
-      return tri;
-   }
- 
-   inFile >> x;
-   cout << x << endl;
-   if(x == "translate" || x == "rotate" || x == "scale")
-   {
-     while(x != "}")
-     {
-       if(x == "rotate"){
-         tri->rotate = parse_vec(inFile);
-         order = order + "r";
-       }
-       if(x == "scale"){
-         tri->scale = parse_vec(inFile);
-          order = order + "s";
-       }
-       if(x == "translate"){
-         tri->translate = parse_vec(inFile);
-         order = order + "t";
-       }      
-       inFile >> x; 
-     }
-   }
    tri->order = order;
    return tri;
 }

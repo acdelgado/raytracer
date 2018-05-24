@@ -1,7 +1,21 @@
-Program 2 (Lighting and Shadows)
+Program 4 (Lots of stuff)
 
-Everything builds fine and most files are identical.
+I only got to implementing transforms, and it mostly works.
 
 Problems:
-  - The plane issue persists on some of the images.
-  - Some differences in specular lighting between my images and the test images
+  - Your latest transform test files aren't read well by my parser (my fault,
+    I'll start using your nice lovely parser for next time).
+
+  - The commit before this works with your new test files, but probably messes
+    up the old ones (again, my parser's problem, that thing is a mess).
+    I thought I would point that out so you can see that the transforms
+    work when they are parsed correctly.
+
+  - I did not have time to implement the Fresnel effect, Beer's law,
+    or Anti-Aliasing. Those tests are obviously going to fail.
+
+  - Last time I checked, the triangle in transforms1.pov does not
+    have the proper shading(though all the other shapes should).
+
+Anyways, I'll probably come to you in person and tell you about the transform/
+parser thing later just in case.
