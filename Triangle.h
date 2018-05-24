@@ -5,7 +5,10 @@ class Triangle : public Object
 {
 public:
   float ambient,diffuse,reflection,filter,refraction,ior;; 
-  glm::vec3 color,a,b,c;
+  glm::vec3 color, scale, rotate, translate, a, b, c;
+  glm::mat4 model, inverse, normMat;
+  string order;
+
   void printstuff()
   {
      cout << std::fixed; cout << std::setprecision(4);
@@ -20,7 +23,60 @@ public:
      cout << c.x << " " << c.y << " " << c.z << "}" << endl;
      cout << "  - Ambient: " << ambient << endl;
      cout << "  - Diffuse: " << diffuse << endl;
+     cout << "- Rotate: {";
+     cout << rotate.x << " " << rotate.y << " " << rotate.z << "}" << endl;
+     cout << "- Scale: {";
+     cout << scale.x << " " << scale.y << " " << scale.z << "}" << endl;
+     cout << "- Translate: {";
+     cout << translate.x << " " << translate.y << " " << translate.z << "}" << endl;
   }
+
+   void calcTransformations()
+   {
+      float theta = getTheta();
+      glm::vec3 rot = getRot();
+      model = glm::mat4(1.f);
+
+      for(int i = 0; i < order.length(); i++)
+      {
+         if(order[i] == 't')
+            model = glm::translate(glm::mat4(1), translate) * model;
+         if(order[i] == 's')
+            model = glm::scale(glm::mat4(1), scale) * model;
+         if(order[i] == 'r')
+            model = glm::rotate(glm::mat4(1), glm::radians(theta), rot) * model;
+      }     
+      inverse = glm::inverse(model);
+      normMat = glm::transpose(inverse);
+   }
+
+  float getTheta()
+   {
+      if(rotate.x != 0)
+         return rotate.x;
+      if(rotate.y != 0)
+         return rotate.y;
+      return rotate.z;
+   }
+   glm::vec3 getRot()
+   {
+      if(rotate.x != 0)
+         return glm::vec3(1,0,0);
+      if(rotate.y != 0)
+         return glm::vec3(0,1,0);
+      if(rotate.z != 0)
+         return glm::vec3(0,0,1);
+      return glm::vec3(0,0,0);
+   }
+
+   glm::mat4 getModel(){return model;}
+   glm::mat4 getInverse(){return inverse;}
+   glm::mat4 getNormMat(){return normMat;}
+ 
+   glm::vec3 getTranslate(){return translate;}
+   glm::vec3 getRotate(){return rotate;}
+   glm::vec3 getScale(){return scale;}
+
 
   float intersect(const Ray & r)
   {
@@ -73,12 +129,17 @@ public:
     return "Triangle";
   }
 
+
   glm::vec3 getNormal(glm::vec3 & pt)
   {
      glm::vec3 ab = a - b;
      glm::vec3 ac = a - c;
-     return glm::cross(ab,ac);
-  }
+     glm::vec3 n3 = glm::cross(ab,ac);
+
+     glm::vec4 normal = glm::vec4(n3.x, n3.y, n3.z, 0);
+     normal = normMat * normal;
+     return glm::vec3(normal.x, normal.y, normal.z);
+   }
 
    glm::vec3 ambColor(Light & l)
    {
@@ -96,7 +157,7 @@ public:
 
      glm::vec3 ab = a - b;
      glm::vec3 ac = a - c;
-     glm::vec3 n = glm::normalize(glm::cross(ab,ac));
+     glm::vec3 n = glm::normalize(getNormal(point));
 
      if(glm::dot(r.direction, n) > 0)
         n *= -1;

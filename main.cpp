@@ -110,15 +110,6 @@ private:
 };
 
 
-
-
-
-
-
-
-
-
-
 void parse_scene(char* filename)
 {
    ifstream inFile;
@@ -150,6 +141,9 @@ void parse_scene(char* filename)
       else if(x == "triangle")
          Scene.push_back(p->parse_tri(inFile));
    }
+
+   for(int i = 0; i < Scene.size(); i++)
+      Scene[i]->calcTransformations();
 }
 
 void print_info()
@@ -192,6 +186,19 @@ glm::vec3 getDvec(int i, int j, int width, int height)
    return normalize(dvec);   
 }
 
+Ray * transformRay(glm::mat4 & M, Ray & r)
+{
+   glm::vec4 newDir = glm::vec4(r.direction.x, r.direction.y, r.direction.z, 0);
+   newDir = glm::inverse(M) * newDir;
+   glm::vec3 transDir = glm::vec3(newDir.x, newDir.y, newDir.z);
+
+   glm::vec4 newpt = glm::vec4(r.start.x, r.start.y, r.start.z, 1);
+   newpt = glm::inverse(M) * newpt;
+   glm::vec3 transpt = glm::vec3(newpt.x, newpt.y, newpt.z);
+
+   return new Ray(transpt, transDir);
+}
+
 bool inShadow(Light & l, glm::vec3 point)
 {
   float epsilon = 0.001f;
@@ -201,15 +208,25 @@ bool inShadow(Light & l, glm::vec3 point)
 
   for(int i = 0; i < Scene.size(); i++)
   {
-    float s = Scene[i]->intersect(*lRay);
-    if(s > epsilon && s < glm::distance(l.location, point))
-    {
-      return true;
-    }
+      glm::mat4 Model = Scene[i]->getModel();
+      Ray * tRay = transformRay(Model, *lRay);
+
+      float s = Scene[i]->intersect(*tRay);
+      if(s > epsilon && s < glm::distance(l.location, point))
+      {
+        return true;
+      }
   }
 
   return false;
 }
+
+void printvec(glm::vec3 v)
+{
+   cout << v.x << " " << v.y << " " << v.z << endl;
+}
+
+
 
 glm::vec3 raytrace(Ray & r, int lightType, int bounce)
 {
@@ -219,17 +236,27 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
    glm::vec3 bp;
    for(int k = 0; k < Scene.size(); k++)
    {
-      float tmp = Scene[k]->intersect(r);
+      glm::mat4 Model = Scene[k]->getModel();
+      glm::mat4 Inv = Scene[k]->getInverse();
+      glm::mat4 Norm = Scene[k]->getNormMat();
+      Ray * transformR = transformRay(Model, r);
+
+      float tmp = Scene[k]->intersect(*transformR);
       if(tmp < best && tmp > 0)
       {
         bp = glm::vec3(0,0,0);
         for(int m = 0; m < lights.size(); m++)
         {
           best = tmp;
+
           glm::vec3 pt = r.start + best * r.direction;
+          glm::vec3 tpt = transformR->start + best * transformR->direction;
+          
           if(lightType == 1)
-           bp = bp + Scene[k]->blinnPhong(r, best, *(lights[m]), inShadow(*(lights[m]), pt));
-          glm::vec3 normal = glm::normalize(Scene[k]->getNormal(pt));
+           bp = bp + Scene[k]->blinnPhong(*transformR, best, *(lights[m]), inShadow(*(lights[m]), pt));
+
+          glm::vec3 normal = glm::normalize(Scene[k]->getNormal(tpt));
+
           glm::vec3 reflectD = r.direction - 2 * glm::dot(r.direction, normal) * normal;
           pt = pt + 0.001f;
 
@@ -243,7 +270,8 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
           Ray *reflectRay = new Ray(pt,reflectD);
           if(finrefl > 0)
           {
-             bp += raytrace(*reflectRay, lightType, bounce + 1) * finrefl * Scene[k]->getColor() * (1.0f - finrefr);
+             glm::vec3 reflectResult = raytrace(*reflectRay, lightType, bounce + 1);
+             bp += reflectResult * finrefl * Scene[k]->getColor() * (1.0f - finrefr);
           }
           if(finrefr > 0)
           {
@@ -280,7 +308,7 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
       }
    }
    
-      return bp;
+   return bp;
 }
 
 void raycast(int width, int height, int lightType)
@@ -292,6 +320,9 @@ void raycast(int width, int height, int lightType)
     {
        glm::vec3 dvec = getDvec(i, j, width, height);
        Ray *r = new Ray(cam->location, dvec);
+       bool print = false;
+       if(i == 399 && j == 280)
+          print = true;
 
        glm::vec3 pixel = glm::clamp(raytrace(*r, lightType, 0),0.0f, 1.0f);
        float rr = pixel.x*255; float gg = pixel.y*255; float bb = pixel.z*255;
