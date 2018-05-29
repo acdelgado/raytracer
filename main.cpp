@@ -255,40 +255,49 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
           if(lightType == 1)
            bp = bp + Scene[k]->blinnPhong(*transformR, best, *(lights[m]), inShadow(*(lights[m]), pt));
 
-          glm::vec3 normal = glm::normalize(Scene[k]->getNormal(tpt));
+          glm::vec3 normal = glm::normalize(Scene[k]->getNormal(pt));
 
           glm::vec3 reflectD = r.direction - 2 * glm::dot(r.direction, normal) * normal;
-          pt = pt + 0.001f;
-
+          glm::vec3 view = -(r.direction);
+          float dDotN = glm::dot(view, normal);
           
+         
           float finrefl = Scene[k]->getReflection();
           float finrefr = Scene[k]->getFilter();
           
           bp = bp * (1.0f - finrefl) * (1.0f - finrefr);
 
 
-          Ray *reflectRay = new Ray(pt,reflectD);
           if(finrefl > 0)
           {
+             glm::vec3 reflectPt = glm::vec3(pt.x,pt.y,pt.z);
+
+             if(dDotN >= 0){
+                reflectPt += normal * 0.001f;
+             }
+             else{
+                reflectPt -= normal * 0.001f;
+             }
+             Ray *reflectRay = new Ray(reflectPt,reflectD);
              glm::vec3 reflectResult = raytrace(*reflectRay, lightType, bounce + 1);
              bp += reflectResult * finrefl * Scene[k]->getColor() * (1.0f - finrefr);
           }
-          if(finrefr > 0)
+          if(Scene[k]->getRefraction() > 0)
           {
-             glm::vec3 view = -(r.direction);
              float n2 = Scene[k]->getIOR();
              float n = 0;
-             float dDotN = glm::dot(view, normal);
-             pt = pt - 0.001f;
              glm::vec3 normie = normal;
+
+             glm::vec3 refractPt = glm::vec3(pt.x, pt.y, pt.z);
+
              if(dDotN >= 0){
-                pt -= normal * 0.001f;
+                refractPt -= normal * 0.001f;
                 n = 1.f/n2;
              }
              else{
+                refractPt += normal * 0.001f;
                 n = n2/1.f;
                 normie = -normal;
-                pt += normal * 0.001f;
              }
              const float c1 = glm::dot(view, normie);
              const float c2 = 1 - (n * n) * (1 - (c1 * c1));
@@ -296,7 +305,7 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
              if(c2 > 0)
                 refractD = (-view * n) + normie * (n * c1 - glm::sqrt(c2));
              
-             Ray *t = new Ray(pt, refractD);
+             Ray *t = new Ray(refractPt, refractD);
              glm::vec3 result = raytrace(*t, lightType, bounce+1) * finrefr;
              result = result * Scene[k]->getColor();
              bp += result;
