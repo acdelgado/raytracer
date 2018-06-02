@@ -7,6 +7,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Triangle.h"
+#include "Box.h"
 
 using namespace std;
 
@@ -261,6 +262,12 @@ Triangle* parse_tri(ifstream & inFile)
          tri->diffuse = atof(x.c_str());
       }
 
+      if(x == "reflection")
+      {
+         inFile >> x;
+         tri->reflection = atof(x.c_str());
+      }
+
       if(x == "refraction")
       {
          inFile >> x;
@@ -291,6 +298,82 @@ Triangle* parse_tri(ifstream & inFile)
 
    tri->order = order;
    return tri;
+}
+
+Box* parse_box(ifstream & inFile)
+{
+   string x;
+   Box* box = new Box();
+   string order = "";
+   box->bmin = parse_vec(inFile);
+   box->bmax = parse_vec(inFile); 
+   glm::vec4 rgbf = parse_vec4(inFile);
+
+   box->color = glm::vec3(rgbf.x, rgbf.y, rgbf.z);
+   box->filter = rgbf.a;
+ 
+   while(x != "}")
+   {
+      if(x == "ambient")
+      {
+         inFile >> x;
+         box->ambient = atof(x.c_str());
+      }
+
+      if(x == "diffuse")
+      {
+         inFile >> x;
+         box->diffuse = atof(x.c_str());
+      }
+
+      if(x == "specular")
+      {
+         inFile >> x;
+         box->specular = atof(x.c_str());
+      }
+
+      if(x == "roughness")
+      {
+         inFile >> x;
+         box->roughness = atof(x.c_str());
+      }
+
+      if(x == "reflection")
+      {
+         inFile >> x;
+         box->reflection = atof(x.c_str());
+      }
+
+      if(x == "refraction")
+      {
+         inFile >> x;
+         box->refraction = atof(x.c_str());
+      }
+      
+      if(x == "ior")
+      {
+         inFile >> x;
+         box->ior = atof(x.c_str());
+      }
+
+      if(x == "rotate"){
+         box->rotate = parse_vec(inFile);
+         order = order + "r";
+      }
+      if(x == "scale"){
+         box->scale = parse_vec(inFile);
+         order = order + "s";
+      }
+      if(x == "translate"){
+         box->translate = parse_vec(inFile);
+         order = order + "t";
+      }
+      inFile.ignore(1,'{');
+      inFile >> x;
+   }
+
+   box->order = order;
+   return box;
 }
 
 Light* parse_light(ifstream & inFile)

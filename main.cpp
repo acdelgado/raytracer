@@ -20,6 +20,43 @@ using namespace std;
 vector<Object *> Scene;
 Camera* cam;
 vector<Light*> lights;
+
+class Params
+{
+ public:
+   glm::vec2 imageSize;
+   bool useShading;
+   bool useShadows;
+   bool useCookTorrance;
+   bool useReflections;
+   bool useRefractions;
+   bool useFresnel;
+   bool useBeers;
+
+   int recursiveDepth;
+   int superSampling;
+
+   bool debugNormals;
+
+   Params(){
+     useShading = true;
+     useShadows = true;
+     useCookTorrance = false;
+     useReflections = true;
+     useRefractions = true;
+     useFresnel = false;
+     useBeers = false;
+
+     recursiveDepth = 6;
+     superSampling = 1;
+
+     debugNormals = false;
+   }
+};
+
+
+Params params;
+
 //Image class from CSC471. Used this for image writing.
 class Image
 {
@@ -140,6 +177,8 @@ void parse_scene(char* filename)
          Scene.push_back(p->parse_plane(inFile));
       else if(x == "triangle")
          Scene.push_back(p->parse_tri(inFile));
+      else if(x == "box")
+         Scene.push_back(p->parse_box(inFile));
    }
 
    for(int i = 0; i < Scene.size(); i++)
@@ -255,16 +294,19 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
           if(lightType == 1)
            bp = bp + Scene[k]->blinnPhong(*transformR, best, *(lights[m]), inShadow(*(lights[m]), pt));
 
-          glm::vec3 normal = glm::normalize(Scene[k]->getNormal(pt));
+          glm::vec3 normal = glm::normalize(Scene[k]->getNormal(tpt));
 
           glm::vec3 reflectD = r.direction - 2 * glm::dot(r.direction, normal) * normal;
           glm::vec3 view = -(r.direction);
           float dDotN = glm::dot(view, normal);
-          
-         
+
+         // float f0 = pow((n2 - 1),2.f) / pow((n2 + 1), 2.f);
+         // float fresnel = 0;
+         // if(params.useFresnel)
+         //    fresnel =  f0 + (1 - f0) * pow(1 - glm::abs(glm::dot(normal, view)), 5.f);
           float finrefl = Scene[k]->getReflection();
           float finrefr = Scene[k]->getFilter();
-          
+
           bp = bp * (1.0f - finrefl) * (1.0f - finrefr);
 
 
@@ -280,14 +322,14 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
              }
              Ray *reflectRay = new Ray(reflectPt,reflectD);
              glm::vec3 reflectResult = raytrace(*reflectRay, lightType, bounce + 1);
-             bp += reflectResult * finrefl * Scene[k]->getColor() * (1.0f - finrefr);
+             bp += reflectResult * finrefl * Scene[k]->getColor() * (1.0f - finrefr);// + finrefr * fresnel;
           }
           if(Scene[k]->getRefraction() > 0)
           {
-             float n2 = Scene[k]->getIOR();
              float n = 0;
              glm::vec3 normie = normal;
 
+             float n2 = Scene[k]->getIOR();          
              glm::vec3 refractPt = glm::vec3(pt.x, pt.y, pt.z);
 
              if(dDotN >= 0){
@@ -306,7 +348,7 @@ glm::vec3 raytrace(Ray & r, int lightType, int bounce)
                 refractD = (-view * n) + normie * (n * c1 - glm::sqrt(c2));
              
              Ray *t = new Ray(refractPt, refractD);
-             glm::vec3 result = raytrace(*t, lightType, bounce+1) * finrefr;
+             glm::vec3 result = raytrace(*t, lightType, bounce+1) * finrefr;//(1 - fresnel);
              result = result * Scene[k]->getColor();
              bp += result;
              
@@ -390,6 +432,22 @@ void pixelray(int width, int height, int i, int j, int type)
    cout << "Color: (" << rr << ", " << gg << ", " <<  bb << ")" << endl;
 }
 
+void readFlags(int argc, char **argv)
+{
+   params = Params();
+
+   for(int i = 0; i < argc; i++)
+   {
+      if(!strcmp(argv[i], "-fresnel"))
+         params.useFresnel = true;
+      if(!strcmp(argv[i], "-altbrdf"))
+         params.useCookTorrance = true;
+      if(!strcmp(argv[i], "-beers"))
+         params.useBeers = true;
+   }
+
+}
+
 int main(int argc, char **argv)
 {
   if(argc < 2)
@@ -398,9 +456,14 @@ int main(int argc, char **argv)
     return 1;
   }
 
+
+  readFlags(argc, argv);
+
+
   string typeOfRun = argv[1];
   char *name = strchr(argv[2], '.');
   parse_scene(argv[2]);
+
   if(typeOfRun == "sceneinfo")
      print_info();
   else if(typeOfRun == "raycast")

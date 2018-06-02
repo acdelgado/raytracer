@@ -1,0 +1,2 @@
+//home/acdelgad/cpe473/ians/part4/CMakeFiles/parser.dir
+//home/acdelgad/cpe473/ians/part4/CMakeFiles/raytrace.dir

@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+//home/acdelgad/cpe473/ians/part4/src/Objects/Box.cpp
+Box.hpp
+//home/acdelgad/cpe473/ians/part4/src/Objects/Box.hpp
+
+//home/acdelgad/cpe473/ians/part4/src/Objects/Box.hpp
+Scene/Object.hpp
+-
+
+lib/parser/Objects.hpp
+glm/glm.hpp
+-
+vector
+-
+
+src/RayTracer/Ray.hpp
+ostream
+-
+glm/glm.hpp
+-
+Util.hpp
+src/RayTracer/Util.hpp
+
+src/RayTracer/Util.hpp
+ostream
+-
+glm/glm.hpp
+-
+
+src/Scene/Object.hpp
+glm/glm.hpp
+-
+parser/Objects.hpp
+-
+RayTracer/Ray.hpp
+-
+
