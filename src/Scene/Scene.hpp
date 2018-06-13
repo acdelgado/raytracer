@@ -10,6 +10,7 @@
 #include "Object.hpp"
 #include "Camera.hpp"
 #include "Light.hpp"
+#include "BoundingVolumeNode.hpp"
 
 #include <RayTracer/PixelContext.hpp>
 
@@ -44,6 +45,8 @@ public:
 
 	bool IsLightOccluded(const glm::vec3 & point, const glm::vec3 & lightPosition, PixelContext::Iteration * currentIteration = nullptr) const;
 	RayHitResults GetRayHitResults(const Ray & ray) const;
+	void BuildSpatialDataStructure();
+	BoundingVolumeNode * GetSpatialDataStructure();
 
 protected:
 
@@ -51,5 +54,7 @@ protected:
 
 	std::vector<Object *> objects;
 	std::vector<Light *> lights;
+
+	BoundingVolumeNode * spatialDataStructure = nullptr;
 
 };

@@ -150,13 +150,22 @@ void Application::RunCommands()
 		return;
 	}
 
+	scene = LoadPovrayScene(fileName);
+	rayTracer = new RayTracer(scene);
+
+	if (command == "printbvh")
+	{
+		ParseExtraParams(3);
+		rayTracer->SetParams(params);
+		RayInfo::PrintTree(scene);
+		return;
+	}
+
 
 	///////////////////
 	// Draw Commands //
 	///////////////////
 
-	scene = LoadPovrayScene(fileName);
-	rayTracer = new RayTracer(scene);
 
 	if (commandArguments.size() < 5)
 	{
@@ -277,6 +286,14 @@ void Application::ParseExtraParams(size_t const StartIndex)
 		{
 			params.superSampling = std::stoi(remainder);
 		}
+		else if (argument == "-sds")
+		{
+			params.useSpatialDataStructure = true;
+		}
+		else if (argument == "-gi")
+		{
+			params.useGI = true;
+		}
 	}
 }
 
@@ -352,6 +369,7 @@ Scene * Application::LoadPovrayScene(const std::string & fileName)
 			object->GetMaterial().finish = o.attributes.finish;
 			object->GetMaterial().color = glm::vec3(o.attributes.pigment.x, o.attributes.pigment.y, o.attributes.pigment.z);
 			object->GetMaterial().filter = o.attributes.pigment.w;
+			object->StoreBoundingBox();
 			scene->AddObject(object);
 		}
 	}

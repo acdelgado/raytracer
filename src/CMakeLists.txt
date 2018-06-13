@@ -24,13 +24,15 @@ set(SOURCES
 	src/Application/RayInfo.cpp
 	src/Application/Renderer.cpp
 	src/Application/SceneInfo.cpp
+	src/Objects/Box.cpp
 	src/Objects/Plane.cpp
 	src/Objects/Sphere.cpp
 	src/Objects/Triangle.cpp
-	src/Objects/Box.cpp
 	src/RayTracer/Pixel.cpp
 	src/RayTracer/RayTracer.cpp
 	src/RayTracer/Util.cpp
+	src/Scene/AABB.cpp
+	src/Scene/BoundingVolumeNode.cpp
 	src/Scene/Camera.cpp
 	src/Scene/Object.cpp
 	src/Scene/Scene.cpp
@@ -43,6 +45,7 @@ set(HEADERS
 	src/Application/RayInfo.hpp
 	src/Application/Renderer.hpp
 	src/Application/SceneInfo.hpp
+	src/Objects/Box.hpp
 	src/Objects/Plane.hpp
 	src/Objects/Sphere.hpp
 	src/Objects/Triangle.hpp
@@ -53,6 +56,8 @@ set(HEADERS
 	src/RayTracer/RayTracer.hpp
 	src/RayTracer/RayTraceResults.hpp
 	src/RayTracer/Util.hpp
+	src/Scene/AABB.hpp
+	src/Scene/BoundingVolumeNode.hpp
 	src/Scene/Camera.hpp
 	src/Scene/Light.hpp
 	src/Scene/Object.hpp

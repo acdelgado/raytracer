@@ -2,7 +2,8 @@
 // Copyright (C) 2018 Ian Dunn
 // For conditions of distribution and use, see the LICENSE file
 
-
+#include <glm/gtx/transform.hpp>
+#include <iostream>
 #include "RayTracer.hpp"
 
 #include <Scene/Scene.hpp>
@@ -10,7 +11,7 @@
 #include <Shading/CookTorranceBRDF.hpp>
 
 
-RayTracer::RayTracer(const Scene * scene)
+RayTracer::RayTracer(Scene * scene)
 {
 	this->scene = scene;
 }
@@ -31,6 +32,11 @@ void RayTracer::SetParams(const Params & params)
 	else
 	{
 		brdf = new BlinnPhongBRDF();
+	}
+
+	if (params.useSpatialDataStructure)
+	{
+		scene->BuildSpatialDataStructure();
 	}
 }
 
@@ -65,6 +71,39 @@ Pixel RayTracer::CastRaysForPixel(const glm::ivec2 & pixel) const
 	return Pixel(color);
 }
 
+glm::vec3 gen_sample_pt(float u, float v)
+{
+	float radial = sqrt(u);
+	float theta = 2.0 * atan(1) * 4 * v;
+
+	float x = radial * cos(theta);
+	float y = radial * sin(theta);
+
+   return glm::vec3(x, y, sqrt(1-u));
+}
+
+glm::vec3 transform(glm::mat4 & m, glm::vec3 & samp)
+{
+	glm::vec4 samp4 = glm::vec4(samp.x, samp.y, samp.z, 0);
+	samp4 = m * samp4;
+	return glm::vec3(samp4.x, samp4.y, samp4.z);
+}
+
+glm::vec3 alignSampleVector(glm::vec3 & sample, glm::vec3 & up, const glm::vec3 & normal)
+{
+	if(up == normal)
+		return sample;
+	else if (up == -normal)
+		return -sample;
+	float angle = acos(glm::dot(up, normal));
+	glm::vec3 axis = glm::cross(up, normal);
+
+
+	glm::mat4 matrix = glm::rotate(angle, axis);
+
+	return transform(matrix, sample);
+}
+
 RayTraceResults RayTracer::CastRay(const Ray & ray, const int depth) const
 {
 	const float surfaceEpsilon = 0.001f;
@@ -94,6 +133,9 @@ RayTraceResults RayTracer::CastRay(const Ray & ray, const int depth) const
 		const glm::vec3 view = -glm::normalize(ray.direction);
 		const glm::vec3 normal = glm::normalize(hitResults.normal);
 
+		const bool insideShape = glm::dot(normal, view) < 0.f;
+		const glm::vec3 surfacePoint = insideShape ? point - normal*surfaceEpsilon : point + normal*surfaceEpsilon;
+
 
 		///////////////////
 		// Contributions //
@@ -110,13 +152,34 @@ RayTraceResults RayTracer::CastRay(const Ray & ray, const int depth) const
 		///////////////////
 		// Local Shading //
 		///////////////////
+		if(!params.useGI || depth < params.recursiveDepth - 1)
+			results.ambient = localContribution * GetAmbientResults(hitObject, point, normal, depth);
+		if(params.useGI && depth >= params.recursiveDepth - 1)
+		{
+			int sampleSize = 16;
+			results.ambient = glm::vec3(0,0,0);
+			if(depth == params.recursiveDepth)
+				sampleSize = 64;
 
-		results.ambient = localContribution * GetAmbientResults(hitObject, point, normal, depth);
+			for(int i = 0; i < sampleSize; i++)
+			{
+				float u = rand() / (float) (RAND_MAX);
+				float v = rand() / (float) (RAND_MAX);
+				glm::vec3 randPt = gen_sample_pt(u, v);
+				glm::vec3 upVec = glm::vec3(0,0,1);
+				glm::vec3 randDir = alignSampleVector(randPt, upVec, normal);
+				glm::vec3 eps = point + surfaceEpsilon * normal;
+				Ray const newRay = Ray(eps, randDir);
+				glm::vec3 sample_pt = CastRay(newRay, depth - 1).ToColor();
+				results.ambient += sample_pt;
+			}
+			results.ambient *= 1.f / sampleSize;
+		}
 
 		for (Light * light : scene->GetLights())
 		{
 			const bool inShadow = params.useShadows ?
-				scene->IsLightOccluded(point + normal*surfaceEpsilon, light->position, contextIteration) :
+				scene->IsLightOccluded(surfacePoint, light->position, contextIteration) :
 				false;
 
 			if (! inShadow)
@@ -164,9 +227,6 @@ RayTraceResults RayTracer::CastRay(const Ray & ray, const int depth) const
 
 		if (params.useReflections && reflectionContribution > 0.f)
 		{
-			const bool insideShape = glm::dot(normal, view) < 0.f;
-			const glm::vec3 surfacePoint = insideShape ? point - normal*surfaceEpsilon : point + normal*surfaceEpsilon;
-
 			const glm::vec3 reflectionVector = glm::normalize(normal * glm::dot(view, normal) * 2.f - view);
 			const glm::vec3 reflectionColor = material.color * GetReflectionResults(surfacePoint, reflectionVector, depth, contextIteration);
 			results.reflection = reflectionContribution * reflectionColor;

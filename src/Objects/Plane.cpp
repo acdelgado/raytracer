@@ -33,6 +33,11 @@ glm::vec3 Plane::CalculateNormal(glm::vec3 const & intersectionPoint) const
 	return normal;
 }
 
+AABB Plane::ComputeBoundingBox() const
+{
+	return AABB(glm::vec3(std::numeric_limits<float>::lowest()), glm::vec3(std::numeric_limits<float>::max()));
+}
+
 std::string Plane::GetObjectType() const
 {
 	return "Plane";
