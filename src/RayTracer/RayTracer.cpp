@@ -178,17 +178,20 @@ RayTraceResults RayTracer::CastRay(const Ray & ray, const int depth) const
 
 		for (Light * light : scene->GetLights())
 		{
-			const bool inShadow = params.useShadows ?
-				scene->IsLightOccluded(surfacePoint, light->position, contextIteration) :
-				false;
 
-			if (! inShadow)
+			for(int i = 0; i < params.lightSamples; i++)
 			{
-				const LightingResults lighting = GetLightingResults(light, hitObject->GetMaterial(), point, view, normal);
+				const bool inShadow2 = params.useShadows ? scene->IsLightOccluded(surfacePoint, light->genPosition(params.lightArea), contextIteration) : false;
 
-				results.diffuse += localContribution * lighting.diffuse;
-				results.specular += localContribution * lighting.specular;
+				if(!inShadow2)
+				{
+					const LightingResults lighting = GetLightingResults(light, hitObject->GetMaterial(), point, view, normal);
+
+					results.diffuse += localContribution * lighting.diffuse * (1.f / params.lightSamples);
+					results.specular += localContribution * lighting.specular * (1.f / params.lightSamples);
+				}
 			}
+
 		}
 
 
